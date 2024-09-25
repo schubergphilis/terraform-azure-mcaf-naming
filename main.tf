@@ -102,8 +102,8 @@ locals {
       aks_user_node_pool              = format("%s-%s-%s-%s-np", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
       container_apps                  = format("%s-%s-%s-%s-ca", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
       container_apps_environment      = format("%s-%s-%s-%s-cae", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      container_registry              = format("%s%s%s%scr", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      container_instances             = format("%s-%s-%s-%s-ci", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      container_registry              = format("%s%s%s%sacr", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      container_instances             = format("%s-%s-%s-%s-aci", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
       service_fabric                  = format("%s-%s-%s-%s-sf", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
       service_fabric_managed_clusters = format("%s-%s-%s-%s-sfmc", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
     }
