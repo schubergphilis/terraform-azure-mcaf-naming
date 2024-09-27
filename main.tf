@@ -1,13 +1,20 @@
+module "azure_region" {
+  source       = "claranet/regions/azurerm"
+  version      = "~> 7"
+  azure_region = var.location
+}
+
 locals {
   environment    = "${var.customer_tla}${var.environment}"
-  resourceprefix = "${var.customer_tla}${var.environment}-${var.workload}-${var.location}-${var.application}"
+  resourceprefix = "${var.customer_tla}${var.environment}-${var.workload}-${local.location}-${var.application}"
   subscription   = "${local.environment}-${var.workload}-sub"
+  location = module.azure_region.location_short
 
   format = {
-    "E-G-L-S"          = [local.environment, var.workload, var.location, var.application]
-    "E-G-L-S_shortend" = [substr(var.environment, 3, 3), var.workload, var.location, var.application]
-    "G-E-L-S"          = [var.workload, local.environment, var.location, var.application]
-    "G-E-L-S_shortend" = [var.workload, substr(var.environment, 3, 3), var.location, var.application]
+    "E-G-L-S"          = [local.environment, var.workload, local.location, var.application]
+    "E-G-L-S_shortend" = [substr(var.environment, 3, 3), var.workload, local.location, var.application]
+    "G-E-L-S"          = [var.workload, local.environment, local.location, var.application]
+    "G-E-L-S_shortend" = [var.workload, substr(var.environment, 3, 3), local.location, var.application]
   }
 
   abbreviations = {

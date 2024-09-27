@@ -30,7 +30,7 @@ variable "format" {
 }
 
 variable "location" {
-  description = "The short name of the location"
+  description = "The full name of the location"
   type        = string
 }
 
