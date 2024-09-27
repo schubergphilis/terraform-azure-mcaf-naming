@@ -14,7 +14,9 @@ No providers.
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_azure_region"></a> [azure\_region](#module\_azure\_region) | claranet/regions/azurerm | ~> 7 |
 
 ## Resources
 
@@ -27,7 +29,7 @@ No resources.
 | <a name="input_application"></a> [application](#input\_application) | The name of the application | `string` | n/a | yes |
 | <a name="input_customer_tla"></a> [customer\_tla](#input\_customer\_tla) | The customer TLA | `string` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | The environment the workload is deployed in | `string` | n/a | yes |
-| <a name="input_location"></a> [location](#input\_location) | The short name of the location | `string` | n/a | yes |
+| <a name="input_location"></a> [location](#input\_location) | The full name of the location | `string` | n/a | yes |
 | <a name="input_workload"></a> [workload](#input\_workload) | The short name of the workload | `string` | n/a | yes |
 | <a name="input_format"></a> [format](#input\_format) | The naming format used. Current options: E-G-L-S and G-E-L-S | `string` | `"E-G-L-S"` | no |
 
