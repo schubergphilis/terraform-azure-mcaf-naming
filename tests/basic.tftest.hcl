@@ -3,7 +3,7 @@ run "basic" {
     application  = "myca"
     customer_tla = "abc"
     environment  = "dev"
-    location     = "weu"
+    location     = "westeurope"
     workload     = "shrd"
   }
 
@@ -14,7 +14,7 @@ run "basic" {
   command = plan
 
   assert {
-    condition     = output.resource_prefix == "abcdev-shrd-weu-myca"
+    condition     = output.resource_prefix == "abcdev-shrd-euw-myca"
     error_message = "Unexpected output.resource_prefix value"
   }
 

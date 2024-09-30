@@ -8,7 +8,7 @@ module "azure_naming" {
   customer_tla = "abc"
   environment  = "t01"
   application  = "dtwh"
-  location     = "weu"
+  location     = "westeurope"
   workload     = "shrd"
 }
 

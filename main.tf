@@ -8,7 +8,7 @@ locals {
   environment    = "${var.customer_tla}${var.environment}"
   resourceprefix = "${var.customer_tla}${var.environment}-${var.workload}-${local.location}-${var.application}"
   subscription   = "${local.environment}-${var.workload}-sub"
-  location = module.azure_region.location_short
+  location       = module.azure_region.location_short
 
   format = {
     "E-G-L-S"          = [local.environment, var.workload, local.location, var.application]
