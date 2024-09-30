@@ -5,9 +5,9 @@ locals {
 
   format = {
     "E-G-L-S"          = [local.environment, var.workload, var.location, var.application]
-    "E-G-L-S_shortend" = [substr(var.environment, 3, 3), var.workload, var.location, var.application]
+    "E-G-L-S_shortend" = [substr(local.environment, 3, 3), var.workload, var.location, var.application]
     "G-E-L-S"          = [var.workload, local.environment, var.location, var.application]
-    "G-E-L-S_shortend" = [var.workload, substr(var.environment, 3, 3), var.location, var.application]
+    "G-E-L-S_shortend" = [var.workload, substr(local.environment, 3, 3), var.location, var.application]
   }
 
   abbreviations = {
