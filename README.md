@@ -36,6 +36,7 @@ No resources.
 | Name | Description |
 |------|-------------|
 | <a name="output_naming"></a> [naming](#output\_naming) | n/a |
+| <a name="output_region_short_name"></a> [region\_short\_name](#output\_region\_short\_name) | n/a |
 | <a name="output_resource_prefix"></a> [resource\_prefix](#output\_resource\_prefix) | n/a |
 | <a name="output_subscription"></a> [subscription](#output\_subscription) | n/a |
 <!-- END_TF_DOCS -->

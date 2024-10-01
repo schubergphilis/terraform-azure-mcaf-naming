@@ -2,12 +2,13 @@ locals {
   environment    = "${var.customer_tla}${var.environment}"
   resourceprefix = "${var.customer_tla}${var.environment}-${var.workload}-${var.location}-${var.application}"
   subscription   = "${local.environment}-${var.workload}-sub"
+  location       = lookup(local.combined_map, var.location, "unknown")
 
   format = {
-    "E-G-L-S"          = [local.environment, var.workload, var.location, var.application]
-    "E-G-L-S_shortend" = [substr(local.environment, 3, 3), var.workload, var.location, var.application]
-    "G-E-L-S"          = [var.workload, local.environment, var.location, var.application]
-    "G-E-L-S_shortend" = [var.workload, substr(local.environment, 3, 3), var.location, var.application]
+    "E-G-L-S"          = [local.environment, var.workload, local.location, var.application]
+    "E-G-L-S_shortend" = [substr(local.environment, 3, 3), var.workload, local.location, var.application]
+    "G-E-L-S"          = [var.workload, local.environment, local.location, var.application]
+    "G-E-L-S_shortend" = [var.workload, substr(local.environment, 3, 3), local.location, var.application]
   }
 
   abbreviations = {
@@ -254,4 +255,38 @@ locals {
       scaling_plan      = format("%s-%s-%s-%s-vdscaling", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
     }
   }
+
+  regions = {
+    northeurope        = "North Europe"
+    westeurope         = "West Europe"
+    francecentral      = "France Central"
+    francesouth        = "France South"
+    germanynorth       = "Germany North"
+    germanywestcentral = "Germany West Central"
+    italynorth         = "Italy North"
+    norwayeast         = "Norway East"
+    norwaywest         = "Norway West"
+    polandcentral      = "Poland Central"
+    swedencentral      = "Sweden Central"
+    swedensouth        = "Sweden South"
+  }
+
+  short_names = {
+    northeurope        = "neu"
+    westeurope         = "weu"
+    francecentral      = "frc"
+    germanynorth       = "gno"
+    germanywestcentral = "gwc"
+    italynorth         = "itn"
+    norwayeast         = "noe"
+    norwaywest         = "now"
+    polandcentral      = "plc"
+    swedencentral      = "sdc"
+    swedensouth        = "sds"
+  }
+
+  combined_map = merge(
+    local.short_names,
+    { for k, v in local.regions : v => lookup(local.short_names, k, null) }
+  )
 }
