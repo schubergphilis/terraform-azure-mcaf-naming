@@ -3,7 +3,7 @@ run "basic" {
     application  = "myca"
     customer_tla = "abc"
     environment  = "dev"
-    location     = "weu"
+    location     = "West Europe"
     workload     = "shrd"
   }
 
@@ -19,7 +19,12 @@ run "basic" {
   }
 
   assert {
-    condition     = output.subscription == "abcdev-shrd-sub"
+    condition     = output.naming.subscription == "abcdev-shrd-sub"
     error_message = "Unexpected output.subscription value"
+  }
+
+  assert {
+    condition = length(output.naming.compute_web.virtual_machine_windows) <= 15
+    error_message = "Windows VM names cannot be longer than 15 characters"
   }
 }
