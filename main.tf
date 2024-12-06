@@ -1,292 +1,290 @@
 locals {
-  environment    = "${var.customer_tla}${var.environment}"
-  resourceprefix = "${var.customer_tla}${var.environment}-${var.workload}-${var.location}-${var.application}"
-  subscription   = "${local.environment}-${var.workload}-sub"
-  location       = lookup(local.combined_map, var.location, "unknown")
+  customer_environment = "${var.customer_acronym}${var.environment}"
+  location             = lookup(local.location_lookup, lower(var.location), "unknown")
 
   format = {
-    "E-G-L-S"          = [local.environment, var.workload, local.location, var.application]
-    "E-G-L-S_shortend" = [substr(local.environment, 3, 3), var.workload, local.location, var.application]
-    "G-E-L-S"          = [var.workload, local.environment, local.location, var.application]
-    "G-E-L-S_shortend" = [var.workload, substr(local.environment, 3, 3), local.location, var.application]
+    "E-G-L-S" = {
+      params           = [local.customer_environment, var.workload, local.location.abbreviation, var.application]
+      params_shortened = [var.environment, var.workload, local.location.abbreviation, var.application]
+    }
+    "G-E-L-S" = {
+      params           = [var.workload, local.customer_environment, local.location.abbreviation, var.application]
+      params_shortened = [var.workload, var.environment, local.location.abbreviation, var.application]
+    }
   }
 
-  abbreviations = {
+  resource_prefix           = format("%s-%s-%s-%s", local.format[var.format].params[0], local.format[var.format].params[1], local.format[var.format].params[2], local.format[var.format].params[3])
+  resource_prefix_shortened = format("%s%s%s%s", local.format[var.format].params_shortened[0], local.format[var.format].params_shortened[1], local.format[var.format].params_shortened[2], local.format[var.format].params_shortened[3])
+
+  resource_format_string     = "${local.resource_prefix}-%s"
+  resource_format_no_hyphens = replace(local.resource_format_string, "-", "")
+  resource_format_shortened  = "${local.resource_prefix_shortened}%s"
+
+  names = {
+    subscription = "${local.format[var.format].params[0]}-${local.format[var.format].params[1]}-sub"
+
     ai_ml = {
-      search                      = format("%s-%s-%s-%s-srch", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      azure_machine_learning      = format("%s-%s-%s-%s-aisa", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      azure_video_indexer         = format("%s-%s-%s-%s-avi", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      machine_learning_workspaces = format("%s-%s-%s-%s-mlw", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      openai                      = format("%s-%s-%s-%s-oai", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      bot_services                = format("%s-%s-%s-%s-bot", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      computer_vision             = format("%s-%s-%s-%s-cv", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      custom_vision               = format("%s-%s-%s-%s-cm", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      custom_vision_training      = format("%s-%s-%s-%s-cstv", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      custom_vision_training_v3   = format("%s-%s-%s-%s-cstvt", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      data_integrity              = format("%s-%s-%s-%s-di", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      face_recognition            = format("%s-%s-%s-%s-face", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      health_insights             = format("%s-%s-%s-%s-hi", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      image_recognition           = format("%s-%s-%s-%s-ir", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      language_understanding      = format("%s-%s-%s-%s-lang", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      speech_services             = format("%s-%s-%s-%s-spch", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      translator_services         = format("%s-%s-%s-%s-trsl", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      search                      = format(local.resource_format_string, "srch")
+      azure_machine_learning      = format(local.resource_format_string, "aisa")
+      azure_video_indexer         = format(local.resource_format_string, "avi")
+      machine_learning_workspaces = format(local.resource_format_string, "mlw")
+      openai                      = format(local.resource_format_string, "oai")
+      bot_services                = format(local.resource_format_string, "bot")
+      computer_vision             = format(local.resource_format_string, "cv")
+      custom_vision               = format(local.resource_format_string, "cm")
+      custom_vision_training      = format(local.resource_format_string, "cstv")
+      custom_vision_training_v3   = format(local.resource_format_string, "cstvt")
+      data_integrity              = format(local.resource_format_string, "di")
+      face_recognition            = format(local.resource_format_string, "face")
+      health_insights             = format(local.resource_format_string, "hi")
+      image_recognition           = format(local.resource_format_string, "ir")
+      language_understanding      = format(local.resource_format_string, "lang")
+      speech_services             = format(local.resource_format_string, "spch")
+      translator_services         = format(local.resource_format_string, "trsl")
     }
 
     analytics_iot = {
-      analysis_services                                          = format("%s-%s-%s-%s-as", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      databricks_workspace                                       = format("%s-%s-%s-%s-dbw", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      data_explorer_cluster                                      = format("%s-%s-%s-%s-dec", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      data_explorer_database                                     = format("%s-%s-%s-%s-dedb", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      data_factory                                               = format("%s-%s-%s-%s-adf", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      digital_twins                                              = format("%s-%s-%s-%s-dt", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      stream_analytics_job                                       = format("%s-%s-%s-%s-asa", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      synapse_analytics_dedicated_sql_pools                      = format("%s-%s-%s-%s-synplh", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      synapse_analytics_dedicated_sql_pools_data_warehouse       = format("%s-%s-%s-%s-syndp", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      synapse_analytics_dedicated_sql_pools_serverless_sql_pools = format("%s-%s-%s-%s-synsp", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      synapse_workspace                                          = format("%s-%s-%s-%s-synw", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      data_lake_store                                            = format("%s-%s-%s-%s-dls", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      data_lake_analytics                                        = format("%s-%s-%s-%s-dla", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      event_hubs_namespace                                       = format("%s-%s-%s-%s-evhns", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      event_hubs                                                 = format("%s-%s-%s-%s-evh", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      event_hubs_authorization_rule                              = format("%s-%s-%s-%s-evhar", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      event_hubs_consumer_group                                  = format("%s-%s-%s-%s-evhcg", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      event_grid_domain                                          = format("%s-%s-%s-%s-evgd", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      event_grid_subscription                                    = format("%s-%s-%s-%s-evgs", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      event_grid_topic                                           = format("%s-%s-%s-%s-evgt", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      event_grid_system_topic                                    = format("%s-%s-%s-%s-egst", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      hadoop                                                     = format("%s-%s-%s-%s-hadoop", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      hbase                                                      = format("%s-%s-%s-%s-hbase", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      kafka                                                      = format("%s-%s-%s-%s-kafka", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      spark                                                      = format("%s-%s-%s-%s-spark", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      storm                                                      = format("%s-%s-%s-%s-storm", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      machine_learning_server                                    = format("%s-%s-%s-%s-mls", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      iot_hub                                                    = format("%s-%s-%s-%s-iot", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      provisioning_service                                       = format("%s-%s-%s-%s-provs", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      provisioning_certificates                                  = format("%s-%s-%s-%s-pcert", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      power_bi                                                   = format("%s-%s-%s-%s-pbi", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      time_series_insights                                       = format("%s-%s-%s-%s-tsi", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      analysis_services                                          = format(local.resource_format_string, "as")
+      databricks_workspace                                       = format(local.resource_format_string, "dbw")
+      data_explorer_cluster                                      = format(local.resource_format_string, "dec")
+      data_explorer_database                                     = format(local.resource_format_string, "dedb")
+      data_factory                                               = format(local.resource_format_string, "adf")
+      digital_twins                                              = format(local.resource_format_string, "dt")
+      stream_analytics_job                                       = format(local.resource_format_string, "asa")
+      synapse_analytics_dedicated_sql_pools                      = format(local.resource_format_string, "synplh")
+      synapse_analytics_dedicated_sql_pools_data_warehouse       = format(local.resource_format_string, "syndp")
+      synapse_analytics_dedicated_sql_pools_serverless_sql_pools = format(local.resource_format_string, "synsp")
+      synapse_workspace                                          = format(local.resource_format_string, "synw")
+      data_lake_store                                            = format(local.resource_format_string, "dls")
+      data_lake_analytics                                        = format(local.resource_format_string, "dla")
+      event_hubs_namespace                                       = format(local.resource_format_string, "evhns")
+      event_hubs                                                 = format(local.resource_format_string, "evh")
+      event_hubs_authorization_rule                              = format(local.resource_format_string, "evhar")
+      event_hubs_consumer_group                                  = format(local.resource_format_string, "evhcg")
+      event_grid_domain                                          = format(local.resource_format_string, "evgd")
+      event_grid_subscription                                    = format(local.resource_format_string, "evgs")
+      event_grid_topic                                           = format(local.resource_format_string, "evgt")
+      event_grid_system_topic                                    = format(local.resource_format_string, "egst")
+      hadoop                                                     = format(local.resource_format_string, "hadoop")
+      hbase                                                      = format(local.resource_format_string, "hbase")
+      kafka                                                      = format(local.resource_format_string, "kafka")
+      spark                                                      = format(local.resource_format_string, "spark")
+      storm                                                      = format(local.resource_format_string, "storm")
+      machine_learning_server                                    = format(local.resource_format_string, "mls")
+      iot_hub                                                    = format(local.resource_format_string, "iot")
+      provisioning_service                                       = format(local.resource_format_string, "provs")
+      provisioning_certificates                                  = format(local.resource_format_string, "pcert")
+      power_bi                                                   = format(local.resource_format_string, "pbi")
+      time_series_insights                                       = format(local.resource_format_string, "tsi")
     }
 
     compute_web = {
-      app_service_environment   = format("%s-%s-%s-%s-ase", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      app_service_plan          = format("%s-%s-%s-%s-asp", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      load_testing              = format("%s-%s-%s-%s-lt", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      availability_set          = format("%s-%s-%s-%s-avail", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      azure_arc_servers         = format("%s-%s-%s-%s-arcs", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      azure_arc_kubernetes      = format("%s-%s-%s-%s-arck", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      batch_account             = format("%s-%s-%s-%s-ba", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      cloud_service             = format("%s-%s-%s-%s-cld", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      container_service         = format("%s-%s-%s-%s-acs", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      dedicated_host            = format("%s-%s-%s-%s-des", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      function_app              = format("%s-%s-%s-%s-func", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      gallery                   = format("%s%s%s%sgal", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      hosting                   = format("%s-%s-%s-%s-host", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      image_template            = format("%s-%s-%s-%s-it", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      managed_disk              = format("%s-%s-%s-%s-osdisk", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      unmanaged_disk            = format("%s-%s-%s-%s-disk", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      disk_encryption_set       = format("%s-%s-%s-%s-des", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      app_service_environment   = format(local.resource_format_string, "ase")
+      app_service_plan          = format(local.resource_format_string, "asp")
+      load_testing              = format(local.resource_format_string, "lt")
+      availability_set          = format(local.resource_format_string, "avail")
+      azure_arc_servers         = format(local.resource_format_string, "arcs")
+      azure_arc_kubernetes      = format(local.resource_format_string, "arck")
+      batch_account             = format(local.resource_format_string, "ba")
+      cloud_service             = format(local.resource_format_string, "cld")
+      container_service         = format(local.resource_format_string, "acs")
+      dedicated_host            = format(local.resource_format_string, "des")
+      function_app              = format(local.resource_format_string, "func")
+      gallery                   = format(local.resource_format_no_hyphens, "gal")
+      hosting                   = format(local.resource_format_string, "host")
+      image_template            = format(local.resource_format_string, "it")
+      managed_disk              = format(local.resource_format_string, "osdisk")
+      unmanaged_disk            = format(local.resource_format_string, "disk")
+      disk_encryption_set       = format(local.resource_format_string, "des")
       network_interface_postfix = "-nic"
-      proximity_placement_group = format("%s-%s-%s-%s-ppg", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      reserved_capacity         = format("%s-%s-%s-%s-rpc", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      snapshot                  = format("%s-%s-%s-%s-snap", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      service_tier              = format("%s-%s-%s-%s-stapp", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      virtual_machine           = format("%s%s%s%s", local.format["${var.format}_shortend"][0], local.format["${var.format}_shortend"][1], local.format["${var.format}_shortend"][2], local.format["${var.format}_shortend"][3])
-      virtual_machine_scale_set = format("%s-%s-%s-%s-vmss", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      machine_configuration     = format("%s-%s-%s-%s-mc", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      storage_vm                = format("%s-%s-%s-%s-stvm", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      web_app                   = format("%s-%s-%s-%s-app", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      proximity_placement_group = format(local.resource_format_string, "ppg")
+      reserved_capacity         = format(local.resource_format_string, "rpc")
+      snapshot                  = format(local.resource_format_string, "snap")
+      service_tier              = format(local.resource_format_string, "stapp")
+      virtual_machine_windows   = format(local.resource_format_shortened, "") // Omitting resource shorthand due to length limitation (15 characters)
+      virtual_machine_linux     = format(local.resource_format_string, "vm")
+      virtual_machine_scale_set = format(local.resource_format_string, "vmss")
+      machine_configuration     = format(local.resource_format_string, "mc")
+      storage_vm                = format(local.resource_format_string, "stvm")
+      web_app                   = format(local.resource_format_string, "app")
     }
 
     containers = {
-      aks                             = format("%s-%s-%s-%s-aks", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      aks_system_node_pool            = format("%s-%s-%s-%s-npsystem", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      aks_user_node_pool              = format("%s-%s-%s-%s-np", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      container_apps                  = format("%s-%s-%s-%s-ca", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      container_apps_environment      = format("%s-%s-%s-%s-cae", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      container_registry              = format("%s%s%s%scr", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      container_instances             = format("%s-%s-%s-%s-ci", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      service_fabric                  = format("%s-%s-%s-%s-sf", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      service_fabric_managed_clusters = format("%s-%s-%s-%s-sfmc", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      aks                             = format(local.resource_format_string, "aks")
+      aks_system_node_pool            = format(local.resource_format_string, "npsystem")
+      aks_user_node_pool              = format(local.resource_format_string, "np")
+      container_apps                  = format(local.resource_format_string, "ca")
+      container_apps_environment      = format(local.resource_format_string, "cae")
+      container_registry              = format(local.resource_format_no_hyphens, "cr")
+      container_instances             = format(local.resource_format_string, "ci")
+      service_fabric                  = format(local.resource_format_string, "sf")
+      service_fabric_managed_clusters = format(local.resource_format_string, "sfmc")
     }
 
     databases = {
-      cosmos_db                          = format("%s-%s-%s-%s-cosmos", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      cosmos_db_sql_api                  = format("%s-%s-%s-%s-coscas", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      cosmos_db_mongodb                  = format("%s-%s-%s-%s-cosmon", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      cosmos_db_cassandra                = format("%s-%s-%s-%s-cosno", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      cosmos_db_table                    = format("%s-%s-%s-%s-costab", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      cosmos_db_gremlin                  = format("%s-%s-%s-%s-cosgrm", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      cosmos_db_postgresql               = format("%s-%s-%s-%s-cospos", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      redis_cache                        = format("%s-%s-%s-%s-redis", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      sql_server                         = format("%s-%s-%s-%s-sql", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      sql_database                       = format("%s-%s-%s-%s-sqldb", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      sql_managed_instance               = format("%s-%s-%s-%s-sqlmi", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      sql_managed_instance_administrator = format("%s-%s-%s-%s-sqlja", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      sql_managed_instance_elastic_pool  = format("%s-%s-%s-%s-sqlep", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      mariadb                            = format("%s-%s-%s-%s-maria", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      mariadb_database                   = format("%s-%s-%s-%s-mariadb", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      mysql                              = format("%s-%s-%s-%s-mysql", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      postgresql                         = format("%s-%s-%s-%s-psql", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      sql_stretch_database               = format("%s-%s-%s-%s-sqlstrdb", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      cosmos_db                          = format(local.resource_format_string, "cosmos")
+      cosmos_db_sql_api                  = format(local.resource_format_string, "coscas")
+      cosmos_db_mongodb                  = format(local.resource_format_string, "cosmon")
+      cosmos_db_cassandra                = format(local.resource_format_string, "cosno")
+      cosmos_db_table                    = format(local.resource_format_string, "costab")
+      cosmos_db_gremlin                  = format(local.resource_format_string, "cosgrm")
+      cosmos_db_postgresql               = format(local.resource_format_string, "cospos")
+      redis_cache                        = format(local.resource_format_string, "redis")
+      sql_server                         = format(local.resource_format_string, "sql")
+      sql_database                       = format(local.resource_format_string, "sqldb")
+      sql_managed_instance               = format(local.resource_format_string, "sqlmi")
+      sql_managed_instance_administrator = format(local.resource_format_string, "sqlja")
+      sql_managed_instance_elastic_pool  = format(local.resource_format_string, "sqlep")
+      mariadb                            = format(local.resource_format_string, "maria")
+      mariadb_database                   = format(local.resource_format_string, "mariadb")
+      mysql                              = format(local.resource_format_string, "mysql")
+      postgresql                         = format(local.resource_format_string, "psql")
+      sql_stretch_database               = format(local.resource_format_string, "sqlstrdb")
     }
 
     developer_tools = {
-      application_configuration_service = format("%s-%s-%s-%s-appcs", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      azure_maps                        = format("%s-%s-%s-%s-map", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      signalr_service                   = format("%s-%s-%s-%s-sigr", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      web_pubsub                        = format("%s-%s-%s-%s-wps", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      application_configuration_service = format(local.resource_format_string, "appcs")
+      azure_maps                        = format(local.resource_format_string, "map")
+      signalr_service                   = format(local.resource_format_string, "sigr")
+      web_pubsub                        = format(local.resource_format_string, "wps")
     }
 
     devops = {
-      azure_monitoring_grafana = format("%s-%s-%s-%s-amg", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      azure_monitoring_grafana = format(local.resource_format_string, "amg")
     }
 
     integration = {
-      api_management                 = format("%s-%s-%s-%s-apim", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      datadog                        = format("%s-%s-%s-%s-dd", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      integration_account            = format("%s-%s-%s-%s-ia", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      logic_apps                     = format("%s-%s-%s-%s-logic", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      service_bus_namespace          = format("%s-%s-%s-%s-sbns", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      service_bus_queue              = format("%s-%s-%s-%s-sbq", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      service_bus_topic              = format("%s-%s-%s-%s-sbt", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      service_bus_topic_subscription = format("%s-%s-%s-%s-sbts", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      api_management                 = format(local.resource_format_string, "apim")
+      datadog                        = format(local.resource_format_string, "dd")
+      integration_account            = format(local.resource_format_string, "ia")
+      logic_apps                     = format(local.resource_format_string, "logic")
+      service_bus_namespace          = format(local.resource_format_string, "sbns")
+      service_bus_queue              = format(local.resource_format_string, "sbq")
+      service_bus_topic              = format(local.resource_format_string, "sbt")
+      service_bus_topic_subscription = format(local.resource_format_string, "sbts")
     }
 
     management_governance = {
-      automation_account       = format("%s-%s-%s-%s-aa", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      descriptive              = format("%s-%s-%s-%s-<descriptive>", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      application_insights     = format("%s-%s-%s-%s-appi", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      advisor                  = format("%s-%s-%s-%s-ag", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      data_collection_rules    = format("%s-%s-%s-%s-dcr", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      azure_policy             = format("%s-%s-%s-%s-apr", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      blueprints               = format("%s-%s-%s-%s-bp", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      blueprints_assignment    = format("%s-%s-%s-%s-bpa", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      data_collection_endpoint = format("%s-%s-%s-%s-dce", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      log_analytics_workspace  = format("%s-%s-%s-%s-law", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      management_pack          = format("%s-%s-%s-%s-pack", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      management_groups        = format("%s-%s-%s-%s-mg", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      policy_view              = format("%s-%s-%s-%s-pview", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      resource_groups          = format("%s-%s-%s-%s-rsg", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      traffic_services         = format("%s-%s-%s-%s-ts", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      automation_account       = format(local.resource_format_string, "aa")
+      descriptive              = format(local.resource_format_string, "<descriptive>")
+      application_insights     = format(local.resource_format_string, "appi")
+      advisor                  = format(local.resource_format_string, "ag")
+      data_collection_rules    = format(local.resource_format_string, "dcr")
+      azure_policy             = format(local.resource_format_string, "apr")
+      blueprints               = format(local.resource_format_string, "bp")
+      blueprints_assignment    = format(local.resource_format_string, "bpa")
+      data_collection_endpoint = format(local.resource_format_string, "dce")
+      log_analytics_workspace  = format(local.resource_format_string, "law")
+      management_pack          = format(local.resource_format_string, "pack")
+      management_groups        = format(local.resource_format_string, "mg")
+      policy_view              = format(local.resource_format_string, "pview")
+      resource_groups          = format(local.resource_format_string, "rsg")
+      traffic_services         = format(local.resource_format_string, "ts")
     }
 
     migration = {
-      migration_service       = format("%s-%s-%s-%s-migr", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      data_migration_service  = format("%s-%s-%s-%s-dms", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      recovery_services_vault = format("%s-%s-%s-%s-rsv", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      migration_service       = format(local.resource_format_string, "migr")
+      data_migration_service  = format(local.resource_format_string, "dms")
+      recovery_services_vault = format(local.resource_format_string, "rsv")
     }
 
     networking = {
-      application_gateway                    = format("%s-%s-%s-%s-agw", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      application_security_groups            = format("%s-%s-%s-%s-asg", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      cdn_profile                            = format("%s-%s-%s-%s-cdnp", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      cdn_endpoint                           = format("%s-%s-%s-%s-cdne", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      connection                             = format("%s-%s-%s-%s-con", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      dns_domain_name                        = format("%s-%s-%s-%s-<DNS domain name>", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      dns_forwarder                          = format("%s-%s-%s-%s-dnsfrs", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      dns_private_resolver                   = format("%s-%s-%s-%s-dnspr", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      dns_private_resolver_inbound_endpoint  = format("%s-%s-%s-%s-iep", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      dns_private_resolver_outbound_endpoint = format("%s-%s-%s-%s-oep", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      azure_firewall                         = format("%s-%s-%s-%s-afw", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      azure_firewall_policy                  = format("%s-%s-%s-%s-afwp", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      express_route_circuit                  = format("%s-%s-%s-%s-erc", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      express_route_gateway                  = format("%s-%s-%s-%s-ergw", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      front_door                             = format("%s-%s-%s-%s-afd", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      front_door_endpoint                    = format("%s-%s-%s-%s-fde", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      front_door_firewall_policy             = format("%s-%s-%s-%s-fdfp", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      front_door_network                     = format("%s-%s-%s-%s-afd", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      ip_groups                              = format("%s-%s-%s-%s-ipg", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      load_balancer_inbound_nat_rule         = format("%s-%s-%s-%s-lbi", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      load_balancer_backend_address_pool     = format("%s-%s-%s-%s-lbe", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      load_balancer_rule                     = format("%s-%s-%s-%s-rule", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      local_network_gateway                  = format("%s-%s-%s-%s-lgw", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      network_security_group                 = format("%s-%s-%s-%s-nsg", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      network_security_group_security_rule   = format("%s-%s-%s-%s-nsgsr", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      network_watcher                        = format("%s-%s-%s-%s-nw", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      peering                                = format("%s-%s-%s-%s-pl", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      private_endpoint                       = format("%s-%s-%s-%s-pep", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      public_ip_address                      = format("%s-%s-%s-%s-pip", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      public_ip_prefix                       = format("%s-%s-%s-%s-ippre", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      route_filter                           = format("%s-%s-%s-%s-rf", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      route_table                            = format("%s-%s-%s-%s-rt", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      route_server                           = format("%s-%s-%s-%s-rtserv", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      routing_intent                         = format("%s-%s-%s-%s-ri", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      security_rule                          = format("%s-%s-%s-%s-se", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      traffic_manager                        = format("%s-%s-%s-%s-traf", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      user_defined_route                     = format("%s-%s-%s-%s-udr", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      virtual_network                        = format("%s-%s-%s-%s-vnet", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      virtual_network_gateway                = format("%s-%s-%s-%s-vgw", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      virtual_network_manager                = format("%s-%s-%s-%s-vnm", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      virtual_network_peering                = format("%s-%s-%s-%s-peer", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      application_gateway                    = format(local.resource_format_string, "agw")
+      application_security_groups            = format(local.resource_format_string, "asg")
+      cdn_profile                            = format(local.resource_format_string, "cdnp")
+      cdn_endpoint                           = format(local.resource_format_string, "cdne")
+      connection                             = format(local.resource_format_string, "con")
+      dns_domain_name                        = format(local.resource_format_string, "<DNS domain name>")
+      dns_forwarder                          = format(local.resource_format_string, "dnsfrs")
+      dns_private_resolver                   = format(local.resource_format_string, "dnspr")
+      dns_private_resolver_inbound_endpoint  = format(local.resource_format_string, "iep")
+      dns_private_resolver_outbound_endpoint = format(local.resource_format_string, "oep")
+      azure_firewall                         = format(local.resource_format_string, "afw")
+      azure_firewall_policy                  = format(local.resource_format_string, "afwp")
+      express_route_circuit                  = format(local.resource_format_string, "erc")
+      express_route_gateway                  = format(local.resource_format_string, "ergw")
+      front_door                             = format(local.resource_format_string, "afd")
+      front_door_endpoint                    = format(local.resource_format_string, "fde")
+      front_door_firewall_policy             = format(local.resource_format_string, "fdfp")
+      front_door_network                     = format(local.resource_format_string, "afd")
+      ip_groups                              = format(local.resource_format_string, "ipg")
+      load_balancer_inbound_nat_rule         = format(local.resource_format_string, "lbi")
+      load_balancer_backend_address_pool     = format(local.resource_format_string, "lbe")
+      load_balancer_rule                     = format(local.resource_format_string, "rule")
+      local_network_gateway                  = format(local.resource_format_string, "lgw")
+      network_security_group                 = format(local.resource_format_string, "nsg")
+      network_security_group_security_rule   = format(local.resource_format_string, "nsgsr")
+      network_watcher                        = format(local.resource_format_string, "nw")
+      peering                                = format(local.resource_format_string, "pl")
+      private_endpoint                       = format(local.resource_format_string, "pep")
+      public_ip_address                      = format(local.resource_format_string, "pip")
+      public_ip_prefix                       = format(local.resource_format_string, "ippre")
+      route_filter                           = format(local.resource_format_string, "rf")
+      route_table                            = format(local.resource_format_string, "rt")
+      route_server                           = format(local.resource_format_string, "rtserv")
+      routing_intent                         = format(local.resource_format_string, "ri")
+      security_rule                          = format(local.resource_format_string, "se")
+      traffic_manager                        = format(local.resource_format_string, "traf")
+      user_defined_route                     = format(local.resource_format_string, "udr")
+      virtual_network                        = format(local.resource_format_string, "vnet")
+      virtual_network_gateway                = format(local.resource_format_string, "vgw")
+      virtual_network_manager                = format(local.resource_format_string, "vnm")
+      virtual_network_peering                = format(local.resource_format_string, "peer")
       subnet_postfix                         = "subnet"
-      virtual_wan                            = format("%s-%s-%s-%s-vwan", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      virtual_hub                            = format("%s-%s-%s-%s-vhub", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      virtual_wan                            = format(local.resource_format_string, "vwan")
+      virtual_hub                            = format(local.resource_format_string, "vhub")
     }
 
     security = {
-      azure_bastion                              = format("%s-%s-%s-%s-bas", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      key_vault                                  = format("%s-%s-%s-%s-kv", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      key_vault_managed_hardware_security_module = format("%s-%s-%s-%s-kvmhsm", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      identity                                   = format("%s-%s-%s-%s-id", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      user_managed_identity                      = format("%s-%s-%s-%s-mid", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      ssh_key                                    = format("%s-%s-%s-%s-sshkey", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      vpn_gateway                                = format("%s-%s-%s-%s-vpng", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      virtual_network_connector                  = format("%s-%s-%s-%s-vcn", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      virtual_security_token                     = format("%s-%s-%s-%s-vst", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      web_application_firewall                   = format("%s-%s-%s-%s-waf", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      web_application_firewall_policy            = format("%s-%s-%s-%s-wafrg", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      azure_bastion                              = format(local.resource_format_string, "bas")
+      key_vault                                  = format(local.resource_format_string, "kv")
+      key_vault_managed_hardware_security_module = format(local.resource_format_string, "kvmhsm")
+      identity                                   = format(local.resource_format_string, "id")
+      user_managed_identity                      = format(local.resource_format_string, "mid")
+      ssh_key                                    = format(local.resource_format_string, "sshkey")
+      vpn_gateway                                = format(local.resource_format_string, "vpng")
+      virtual_network_connector                  = format(local.resource_format_string, "vcn")
+      virtual_security_token                     = format(local.resource_format_string, "vst")
+      web_application_firewall                   = format(local.resource_format_string, "waf")
+      web_application_firewall_policy            = format(local.resource_format_string, "wafrg")
     }
 
     storage = {
-      azure_import_export  = format("%s-%s-%s-%s-ssimp", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      backup_vault         = format("%s-%s-%s-%s-bvault", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      backup_policy        = format("%s-%s-%s-%s-bkpol", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      file_share           = format("%s-%s-%s-%s-share", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      storage_account      = format("%s%s%s%ssta", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3]) # No - allowed in name
-      storage_container    = format("%s%s%s%ssc", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])  # No - allowed in name
-      storage_sync_service = format("%s-%s-%s-%s-sss", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      azure_import_export  = format(local.resource_format_string, "ssimp")
+      backup_vault         = format(local.resource_format_string, "bvault")
+      backup_policy        = format(local.resource_format_string, "bkpol")
+      file_share           = format(local.resource_format_string, "share")
+      storage_account      = format(local.resource_format_no_hyphens, "sta")
+      storage_container    = format(local.resource_format_no_hyphens, "sc")
+      storage_sync_service = format(local.resource_format_string, "sss")
     }
 
     virtual_desktop_infrastructure = {
-      host_pool         = format("%s-%s-%s-%s-lp", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      desktop_pool      = format("%s-%s-%s-%s-vdpool", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      application_group = format("%s-%s-%s-%s-vdag", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      workspace         = format("%s-%s-%s-%s-vdws", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
-      scaling_plan      = format("%s-%s-%s-%s-vdscaling", local.format[var.format][0], local.format[var.format][1], local.format[var.format][2], local.format[var.format][3])
+      host_pool         = format(local.resource_format_string, "lp")
+      desktop_pool      = format(local.resource_format_string, "vdpool")
+      application_group = format(local.resource_format_string, "vdag")
+      workspace         = format(local.resource_format_string, "vdws")
+      scaling_plan      = format(local.resource_format_string, "vdscaling")
     }
   }
 
-  regions = {
-    northeurope        = "North Europe"
-    westeurope         = "West Europe"
-    francecentral      = "France Central"
-    francesouth        = "France South"
-    germanynorth       = "Germany North"
-    germanywestcentral = "Germany West Central"
-    italynorth         = "Italy North"
-    norwayeast         = "Norway East"
-    norwaywest         = "Norway West"
-    polandcentral      = "Poland Central"
-    swedencentral      = "Sweden Central"
-    swedensouth        = "Sweden South"
-  }
+  locations = [
+    { short_name : "northeurope", full_name : "North Europe", abbreviation : "neu" },
+    { short_name : "westeurope", full_name : "West Europe", abbreviation : "weu" },
+    { short_name : "francecentral", full_name : "France Central", abbreviation : "frc" },
+    { short_name : "francesouth", full_name : "France South", abbreviation : "frs" },
+    { short_name : "germanynorth", full_name : "Germany North", abbreviation : "gno" },
+    { short_name : "germanywestcentral", full_name : "Germany West Central", abbreviation : "gwc" },
+    { short_name : "italynorth", full_name : "Italy North", abbreviation : "itn" },
+    { short_name : "norwayeast", full_name : "Norway East", abbreviation : "noe" },
+    { short_name : "norwaywest", full_name : "Norway West", abbreviation : "now" },
+    { short_name : "polandcentral", full_name : "Poland Central", abbreviation : "plc" },
+    { short_name : "swedencentral", full_name : "Sweden Central", abbreviation : "sdc" },
+    { short_name : "swedensouth", full_name : "Sweden South", abbreviation : "sds" }
+  ]
 
-  short_names = {
-    northeurope        = "neu"
-    westeurope         = "weu"
-    francecentral      = "frc"
-    germanynorth       = "gno"
-    germanywestcentral = "gwc"
-    italynorth         = "itn"
-    norwayeast         = "noe"
-    norwaywest         = "now"
-    polandcentral      = "plc"
-    swedencentral      = "sdc"
-    swedensouth        = "sds"
-  }
-
-  combined_map = merge(
-    local.short_names,
-    { for k, v in local.regions : v => lookup(local.short_names, k, null) }
+  location_lookup = merge(
+    { for location in local.locations : lower(location.short_name) => location },
+    { for location in local.locations : lower(location.full_name) => location }
   )
 }
