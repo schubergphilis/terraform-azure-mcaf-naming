@@ -8,8 +8,8 @@ variable "application" {
   }
 }
 
-variable "customer_tla" {
-  description = "The customer TLA"
+variable "customer_acronym" {
+  description = "The customer three letter acronym"
   type        = string
 
   validation {
@@ -30,8 +30,12 @@ variable "format" {
 }
 
 variable "location" {
-  description = "The short name of the location"
+  description = "The name of the location (e.g. \"West Europe\", \"westeurope\", etc.)"
   type        = string
+  validation {
+    condition = lookup(local.location_lookup, lower(var.location), null) != null
+    error_message = "Provided location not supported"
+  }
 }
 
 variable "workload" {

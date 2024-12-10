@@ -25,9 +25,9 @@ No resources.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_application"></a> [application](#input\_application) | The name of the application | `string` | n/a | yes |
-| <a name="input_customer_tla"></a> [customer\_tla](#input\_customer\_tla) | The customer TLA | `string` | n/a | yes |
+| <a name="input_customer_acronym"></a> [customer\_acronym](#input\_customer\_acronym) | The customer three letter acronym | `string` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | The environment the workload is deployed in | `string` | n/a | yes |
-| <a name="input_location"></a> [location](#input\_location) | The short name of the location | `string` | n/a | yes |
+| <a name="input_location"></a> [location](#input\_location) | The name of the location (e.g. "West Europe", "westeurope", etc.) | `string` | n/a | yes |
 | <a name="input_workload"></a> [workload](#input\_workload) | The short name of the workload | `string` | n/a | yes |
 | <a name="input_format"></a> [format](#input\_format) | The naming format used. Current options: E-G-L-S and G-E-L-S | `string` | `"E-G-L-S"` | no |
 
@@ -35,10 +35,9 @@ No resources.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_location_short_name"></a> [location\_short\_name](#output\_location\_short\_name) | n/a |
 | <a name="output_naming"></a> [naming](#output\_naming) | n/a |
-| <a name="output_region_short_name"></a> [region\_short\_name](#output\_region\_short\_name) | n/a |
 | <a name="output_resource_prefix"></a> [resource\_prefix](#output\_resource\_prefix) | n/a |
-| <a name="output_subscription"></a> [subscription](#output\_subscription) | n/a |
 <!-- END_TF_DOCS -->
 
 ## License
