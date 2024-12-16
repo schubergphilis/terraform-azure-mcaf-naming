@@ -35,7 +35,7 @@ No resources.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_location_short_name"></a> [location\_short\_name](#output\_location\_short\_name) | n/a |
+| <a name="output_location"></a> [location](#output\_location) | n/a |
 | <a name="output_naming"></a> [naming](#output\_naming) | n/a |
 | <a name="output_resource_prefix"></a> [resource\_prefix](#output\_resource\_prefix) | n/a |
 <!-- END_TF_DOCS -->
