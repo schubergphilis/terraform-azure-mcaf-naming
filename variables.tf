@@ -8,12 +8,12 @@ variable "application" {
   }
 }
 
-variable "customer_tla" {
-  description = "The customer TLA"
+variable "customer_acronym" {
+  description = "The customer three letter acronym"
   type        = string
 
   validation {
-    condition     = can(regex("^[a-z0-9]{3}$", var.customer_tla)) || var.customer_tla == "abc"
+    condition     = can(regex("^[a-z0-9]{3}$", var.customer_acronym)) || var.customer_acronym == "abc"
     error_message = "Customer name must be exactly 3 characters and can only contain lowercase letters and numbers."
   }
 }
@@ -30,8 +30,12 @@ variable "format" {
 }
 
 variable "location" {
-  description = "The short name of the location"
+  description = "The name of the location (e.g. \"West Europe\", \"westeurope\", etc.)"
   type        = string
+  validation {
+    condition     = lookup(local.location_lookup, lower(var.location), null) != null
+    error_message = "Provided location not supported"
+  }
 }
 
 variable "workload" {

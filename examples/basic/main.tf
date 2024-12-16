@@ -5,11 +5,11 @@ terraform {
 module "azure_naming" {
   source = "../.."
 
-  customer_tla = "abc"
-  environment  = "t01"
-  application  = "dtwh"
-  location     = "weu"
-  workload     = "shrd"
+  customer_acronym = "abc"
+  environment      = "t01"
+  application      = "dtwh"
+  location         = "West Europe"
+  workload         = "shrd"
 }
 
 output "naming_convention" {

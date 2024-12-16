@@ -1,15 +1,11 @@
 output "naming" {
-  value = local.abbreviations
+  value = local.names
 }
 
 output "resource_prefix" {
-  value = local.resourceprefix
+  value = local.resource_prefix
 }
 
-output "subscription" {
-  value = local.subscription
-}
-
-output "region_short_name" {
-  value = lookup(local.combined_map, var.location, "unknown")
+output "location_short_name" {
+  value = lookup(local.location_lookup, lower(var.location), "unknown")
 }
